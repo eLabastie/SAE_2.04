@@ -34,9 +34,23 @@ if choix=='1':
 elif choix=='2':
     print("      Thème 2 : Accidents des deux roues selon la cause de l'accident ")
      # Saisie des paramètres de la requête
+        
 elif choix=='3':
     print("      Thème 3 : Accidents des deux roues selon l'heure de la nuit ")
     # Saisie des paramètres de la requête
+    print("Luminosités renseignées dans la base de données : Nuit éclairée, Nuit éclairée insuffisant et Nuit sans éclairage")
+    typeLum=input("Saisissez la luminosite à consulter (1,2,3,4) : ")
+    if typeLum=="1":
+        typeLum="Nuit eclairee"
+    elif typeLum=="2":
+        typeLum="Nuit eclairee insuffisant"
+    elif typeLum=="3":
+        typeLum=="Nuit sans eclairage"
+    elif typeLum=="4":
+            
+    graph3=pandas.read_sql("SELECT HOUR(MDate.DateFormatStandard) as Heure, (MLuminosite.libelle) as Luminosite, COUNT(MLuminosite.libelle_luminosite) as Nombre FROM MAccident INNER JOIN MDate on MAccident.date_id = MDate.date_id INNER JOIN MLuminosite on MAccident.lum_id = MLuminosite.code WHERE impliq_id = 2 AND MLuminosite.libelle = " + luminosite + " AND HOUR(MDate.DateFormatStandard) NOT BETWEEN 9 AND 15 GROUP BY Heure, conn)
+    graph3.plot(kind="bar", x="Annee", y="Nombre")
+    plt.show()  
     
 
 

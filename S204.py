@@ -12,14 +12,19 @@ import pandas
 # Connexion lakartxela
 conn=pyodbc.connect('DSN=BD_lakartxela')
 
+
+print (" \n \n             Constructeur de graphiques sur les véhicules à 2 roues \n \n \n")
 # Affichage du menu
-print("thème 1 : Accidents des deux roues selon l'état du sol")
-print('\n')
-print("thème 2 : Accidents des deux roues selon la cause de l'accident ")
-print('\n')
-print("thème 3 : Accidents des deux roues selon l'heure de la nuit ")
-print('\n')
-print("thème 4 : Évolution des accidents des deux roues sur une période ")
+print("- Thème 1 : Accidents des deux roues selon l'état du sol ")
+print('\n') 
+print("- Thème 2 : Accidents des deux roues selon la cause de l'accident ")
+print('\n') 
+print("- Thème 3 : Accidents des deux roues selon l'heure de la nuit ")
+print('\n') 
+print("- Thème 4 : Évolution des accidents des deux roues sur une période ")
+
+
+choix=input(" \n Veuillez choisir un thème (1,2,3,4) : ")
 
 # Saisie du choix de l'utilisateur
 
@@ -28,7 +33,28 @@ choix=input("Veuillez choisir un thème (1,2,3,4) : ")
 if choix=='1':
     print("      Thème 1 : Accidents des deux roues selon l'état du sol")
     # Saisie des paramètres de la requête
-    Etat_sol=input("Veullez indiquer l'etat(s) du sol lors de l'accident \n 1:Humide, 2:Mouillee,  3:Enneigee, 4:Verglacee, 5:Gras boueux, 6:Gravillons, 7:Sec_Normal \n (1 OR 2 OR 5) : ")
+    Etat_sol=input("\n Veullez indiquer l'etat(s) du sol lors de l'accident \n 1:Humide, 2:Mouillee,  3:Enneigee, 4:Verglacee, 5:Gras boueux, 6:Gravillons, 7:Sec Normal \n : ")
+   
+   graph1=p.read_sql("SELECT MTypeImplication.libelleType as Nom , COUNT(*) as Nombre , (count(*) * 100.0 / 4611 ) as proba FROM MAccident INNER JOIN MEtatSurface on MAccident.etat_surface_id=MEtatSurface.code_etat_surface INNER JOIN MImplique on MAccident.impliq_id=MImplique.code INNER JOIN MTypeImplication on MImplique.type_code_implique=MTypeImplication.id WHERE (MAccident.etat_surface_id=" + Etat_sol + ") AND (MTypeImplication.id=2 ) GROUP BY Nom", conn)
+   graph1.plot( kind="bar",x="Nom", y="proba", legend=False)
+   
+   if Etat_sol=='1':
+       Etat_sol="Humide"
+   elif Etat_sol=='2':
+       Etat_sol="Mouillee"
+   elif Etat_sol=='3':
+       Etat_sol="Enneigee"
+   elif Etat_sol=='4':
+       Etat_sol="Verglacee"
+   elif Etat_sol=='5':
+       Etat_sol="Gras Boueux"
+   elif Etat_sol=='6':
+       Etat_sol="Gravillions"
+   elif Etat_sol=='7':
+       Etat_sol="Sec Normal"
+       
+   plt.title("Taux d'accidents de deux roues sur un sol " + Etat_sol )
+   plt.show()
    
 
 elif choix=='2':

@@ -113,9 +113,15 @@ elif choix=='2':
         
     if typegraph=='2':
         graph2=p.read_sql("SELECT m.libelleType as Nom,count(*) as Taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code INNER JOIN MTypeImplication as m on i.type_code_implique=m.id WHERE (i.type_code_implique=2 OR i.type_code_implique=3) AND c.libelle IN " + TypeCause + " GROUP BY m.libelleType ", conn)
-        graph2.loc[0, 'Taux']=graph2.loc[0, 'Taux'] *100/4611
-        graph2.loc[1, 'Taux']=graph2.loc[1, 'Taux']*100/20343
-        graph2.plot(kind="bar", x="Nom" ,y="Taux")
+        #Sélection des libellés des accidents avec pour alias Nom, et comptage des tuples avec pour alias Taux
+        #Jointure de la table MCause afin de récupérer la cause des accidents
+        #Jointure de la table MImplique afin de récupérer les véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
+        #Jointure de la table MTypeImplication afin de récupérer les types de véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
+        #Recherche des tuples contenant les causes passées en paramètres
+        
+        graph2.loc[0, 'Taux']=graph2.loc[0, 'Taux'] *100/4611 #Calcul du taux d'accidents des 2 roues
+        graph2.loc[1, 'Taux']=graph2.loc[1, 'Taux']*100/20343 #Calcul du taux d'accidents des véhicules
+        graph2.plot(kind="bar", x="Nom" ,y="Taux") #Création du greaphique
         plt.title("Taux d'accidents de 2 roues du a la cause " + NomCat + " comparés à ceux des véhicules"  )
     plt.show()   
     
@@ -153,5 +159,9 @@ elif choix=='4':
     
     #Requete et graph
     graph4=p.read_sql("SELECT YEAR(MDate.DateFormatStandard) as Annee, COUNT(accident_id) as Nombre FROM MAccident INNER JOIN MDate ON MAccident.date_id = MDate.date_id WHERE impliq_id = 2 AND YEAR(MDate.DateFormatStandard) BETWEEN " + dateDeb + " AND " + dateFin + " GROUP BY Annee", conn)
-    graph4.plot( x="Annee", y="Nombre")
+    #Sélection de l'année de la date des accidents et du nombre d'accidents
+    #Jointure avec la table MDate pour récupérer la date des accidents
+    #Recherche des tuples ayant des 2 roues impliqués dans l'accident et ayant leur date comprise entre les 2 années passées en paramètre
+    
+    graph4.plot( x="Annee", y="Nombre") #Création du graphique
     plt.title("Nombre d'accidents de deux roues entre " + dateDeb + " et " + dateFin)

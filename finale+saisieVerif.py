@@ -11,18 +11,9 @@ import pandas as p
 conn=pyodbc.connect('DSN=BD_LAKARTXELA')
 
 
-def saisieVerif (borne1, borne2, txt) : # bornes, texte, not between
-    while(True):
-        val = input(txt)
-        try:
-            val = int(val)
-            if val >= borne1 and val <= borne2 :            
-                return str(val)
-        except ValueError :
-            pass
 
 
-print("33[0;37;40m Normal textn")
+
 print (" \n \n             Constructeur de graphiques sur les véhicules à 2 roues \n \n \n")
 print("- Thème 1 : Accidents des deux roues selon l'état du sol ")
 print('\n') 
@@ -32,11 +23,11 @@ print("- Thème 3 : Accidents des deux roues selon l'heure de la nuit ")
 print('\n') 
 print("- Thème 4 : Évolution des accidents des deux roues sur une période ")
 
-
+#Choix du thème
 choix = saisieVerif(1, 4, " \n Veuillez choisir un thème (1,2,3,4) : ")
 
 
-
+#Thème 1
 if choix=='1':
    #Saisie
    print("  \n \n    Thème 1 : Accidents des deux roues selon l'état du sol")
@@ -73,12 +64,13 @@ if choix=='1':
    plt.show()
     
    
-    
+#Thème 2
 elif choix=='2':
     print("   \n   Thème 2 : Accidents des deux roues selon la cause de l'accident ")
-     # Saisie des paramètres de la requête
+    
+    # Saisie des paramètres de la requête
     TypeCause=input(" \n Veuillez choisir une catégorie de cause ( perte de controle (1) , pieton (2) , non respect signalisation (3) , Autre (4) ) : \n ")
-    if TypeCause=='1':
+   if TypeCause=='1':
       NomCat='perte de contrôle'
       TypeCause='("Va stationner a gauche", "Perte de contrôle", "Défaut de maîtrise", "Maitrise du vehicule", "Dépassement a droite", "Dépassement en virage", "Dépassement en carrefour", "Dépassement en 3eme position", "Queue de poisson", "Dépassement dangereux", "Ecart sur le côté", "Roule à  gauche", "Heurte véhicule en stationnement interdit", "Entre sur la chaussée", "En intersection", "En section", "Depassement interdit ou dangereux", "Heurte un obstacle inerte", "Heurte un obstacle mobile","Roule en marche arrière")'
     elif TypeCause=='2':
@@ -91,6 +83,7 @@ elif choix=='2':
         NomCat='Autre'
         TypeCause='("indéterminée", "Causes humaines" ,"eclairage insuffisant du véhicule", "Incident mécanique", "ivresse", "malaise", "infirme", "Eblouissement par les phares", "Demi-tour", "Manoeuvre sur parking", "Heurte un véhicule en stationnement", "Quitte le stationnement", "Mauvais positionnement (chgt de file)", "Marche arrière pour stationner", "Stationnement")'
     
+    #Choix type du graph
     typegraph=input(" \n Voulez vous le taux d'accidents seulement des deux roues selon la cause " + NomCat + " (1) \n   ou le nombre d'accidents de deux roues comparé aux véhicules dus à la cause " + NomCat + "(2) : ")
     if typegraph=='1':
         graph2=p.read_sql("SELECT (count(*) * 100.0 / 4611 ) as taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code WHERE i.type_code_implique=2 AND c.libelle IN " + TypeCause + "", conn)
@@ -102,7 +95,9 @@ elif choix=='2':
         graph2.plot(kind="bar", x="Nom" ,y="Nombre")
         plt.title("Nombre d'accidents de 2 roues du a la cause " + NomCat + " comparés à ceux des véhicules"  )
     plt.show()   
+
     
+#Thème 3
 elif choix=="3":
     
     #Saisie
@@ -124,7 +119,7 @@ elif choix=="3":
     plt.title("Nombre d'accidents de deux roues lors d'une " + typeLum )
     plt.show()   
 
-
+#Thème 4
 elif choix=='4':
     #Saisie
     print(" \n \n     Thème 4 : Évolution des accidents des deux roues sur une période ")    
@@ -139,3 +134,14 @@ elif choix=='4':
     graph4=p.read_sql("SELECT YEAR(MDate.DateFormatStandard) as Annee, COUNT(accident_id) as Nombre FROM MAccident INNER JOIN MDate ON MAccident.date_id = MDate.date_id WHERE impliq_id = 2 AND YEAR(MDate.DateFormatStandard) BETWEEN " + dateDeb + " AND " + dateFin + " GROUP BY Annee", conn)
     graph4.plot( x="Annee", y="Nombre")
     plt.title("Nombre d'accidents de deux roues entre " + dateDeb + " et " + dateFin)
+
+    
+    def saisieVerif (borne1, borne2, txt) : # bornes, texte, not between
+    while(True):
+        val = input(txt)
+        try:
+            val = int(val)
+            if val >= borne1 and val <= borne2 :            
+                return str(val)
+        except ValueError :
+            pass

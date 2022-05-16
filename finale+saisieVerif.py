@@ -11,10 +11,10 @@ import pandas as p
 conn=pyodbc.connect('DSN=BD_LAKARTXELA')
 
 
-def saisieVerif (borne1, borne2, txt) : # bornes, texte, not between
+def saisieVerif (borne1, borne2, txt) :
     while(True):
         val = input(txt)
-        try:
+        try:                                    #Verification du type de la saisie
             val = int(val)
             if val >= borne1 and val <= borne2 :            
                 return str(val)
@@ -47,10 +47,24 @@ if choix=='1':
    #Parametrage requete
    if typegraph=='1':
        graph1=p.read_sql("SELECT MTypeImplication.libelleType as Nom  , (count(*) * 100.0 / 4611 ) as proba FROM MAccident INNER JOIN MEtatSurface on MAccident.etat_surface_id=MEtatSurface.code_etat_surface INNER JOIN MImplique on MAccident.impliq_id=MImplique.code INNER JOIN MTypeImplication on MImplique.type_code_implique=MTypeImplication.id WHERE (MAccident.etat_surface_id=" + Etat_sol + ") AND (MTypeImplication.id=2 ) GROUP BY Nom", conn)
+       #Sélection des colonnes libelleType en tant que nom, et comptage des tuples rapporté en pourcentage en tant que proba
+       #Jointure de la table MEtatSurface pour pouvoir sélectionner celle qui nous interesse
+       #Jointure de la table MAccident pour connaitre les véhicules impliqué
+       #Jointure de la table MTypeImplication pour trier en fonction du type de véhicule
+       #Recherche sur les tuples ayant en état de sol le parametre rentré, de type 2 roues       
+       
        graph1.plot( kind="bar",x="Nom", y="proba", legend=False)
-       typeG='Taux'
+       typeG='Taux'       
+       
+       
    elif typegraph=='2':
        graph1=p.read_sql("SELECT MTypeImplication.libelleType as Nom , COUNT(*) as Nombre  FROM MAccident INNER JOIN MEtatSurface on MAccident.etat_surface_id=MEtatSurface.code_etat_surface INNER JOIN MImplique on MAccident.impliq_id=MImplique.code INNER JOIN MTypeImplication on MImplique.type_code_implique=MTypeImplication.id WHERE (MAccident.etat_surface_id=" + Etat_sol + ") AND (MTypeImplication.id=2 OR MTypeImplication.id=3) GROUP BY Nom", conn)
+       #Sélection de la colonne de type de véhicule impliqué en tant que nom, et comptage du nombre de véhicule impliqué en tant que Nombre
+       #Jointure de la table MEtatSurface pour pouvoir sélectionner l'état du sol qui nous interesse
+       #Jointure de MImplique pour ne selectionner que les accidents impliquant les 2 roues
+       #Jointure de MTypeImplication pour ne sélectionner que les accidents impliquant les 2 roues
+       #Recherche sur les tuples comportant l'état de sol saisie en parametre, n'etant que des 2 roues
+       
        graph1.plot( kind="bar",x="Nom", y="Nombre", legend=False)
        typeG='Nombre'
    if Etat_sol=='1':
@@ -77,7 +91,7 @@ if choix=='1':
 elif choix=='2':
     print("   \n   Thème 2 : Accidents des deux roues selon la cause de l'accident ")
      # Saisie des paramètres de la requête
-    TypeCause=input(" \n Veuillez choisir une catégorie de cause ( perte de controle (1) , pieton (2) , non respect signalisation (3) , Autre (4) ) : \n ")
+    TypeCause=saisieVerif(1, 4, " \n Veuillez choisir une catégorie de cause ( perte de controle (1) , pieton (2) , non respect signalisation (3) , Autre (4) ) : \n ")
     if TypeCause=='1':
       NomCat='perte de contrôle'
       TypeCause='("Va stationner a gauche", "Perte de contrôle", "Défaut de maîtrise", "Maitrise du vehicule", "Dépassement a droite", "Dépassement en virage", "Dépassement en carrefour", "Dépassement en 3eme position", "Queue de poisson", "Dépassement dangereux", "Ecart sur le côté", "Roule à  gauche", "Heurte véhicule en stationnement interdit", "Entre sur la chaussée", "En intersection", "En section", "Depassement interdit ou dangereux", "Heurte un obstacle inerte", "Heurte un obstacle mobile","Roule en marche arrière")'
@@ -91,7 +105,7 @@ elif choix=='2':
         NomCat='Autre'
         TypeCause='("indéterminée", "Causes humaines" ,"eclairage insuffisant du véhicule", "Incident mécanique", "ivresse", "malaise", "infirme", "Eblouissement par les phares", "Demi-tour", "Manoeuvre sur parking", "Heurte un véhicule en stationnement", "Quitte le stationnement", "Mauvais positionnement (chgt de file)", "Marche arrière pour stationner", "Stationnement")'
     
-    typegraph=input(" \n Voulez vous le taux d'accidents seulement des deux roues selon la cause " + NomCat + " (1) \n   ou le nombre d'accidents de deux roues comparé aux véhicules dus à la cause " + NomCat + "(2) : ")
+    typegraph=saisieVerif(1,2, " \n Voulez vous le taux d'accidents seulement des deux roues selon la cause " + NomCat + " (1) \n   ou le nombre d'accidents de deux roues comparé aux véhicules dus à la cause " + NomCat + "(2) : ")
     if typegraph=='1':
         graph2=p.read_sql("SELECT (count(*) * 100.0 / 4611 ) as taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code WHERE i.type_code_implique=2 AND c.libelle IN " + TypeCause + "", conn)
         graph2.plot(kind="bar" ,y="taux")

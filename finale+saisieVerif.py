@@ -106,8 +106,16 @@ elif choix=='2':
         TypeCause='("indéterminée", "Causes humaines" ,"eclairage insuffisant du véhicule", "Incident mécanique", "ivresse", "malaise", "infirme", "Eblouissement par les phares", "Demi-tour", "Manoeuvre sur parking", "Heurte un véhicule en stationnement", "Quitte le stationnement", "Mauvais positionnement (chgt de file)", "Marche arrière pour stationner", "Stationnement")'
     
     typegraph=saisieVerif(1,2, " \n Voulez vous le taux d'accidents seulement des deux roues selon la cause " + NomCat + " (1) \n   ou le nombre d'accidents de deux roues comparé aux véhicules dus à la cause " + NomCat + "(2) : ")
+    
+    #Graph 1
     if typegraph=='1':
+        #Requete
         graph2=p.read_sql("SELECT (count(*) * 100.0 / 4611 ) as taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code WHERE i.type_code_implique=2 AND c.libelle IN " + TypeCause + "", conn)
+        #Selection des tuples rapporté en pourcentage en tant que taux
+        #Jointure de MCause pour parametrer le type de cause que nous cherchons
+        #Jointure de MImplique pour ne selectionner que les véhicules etant des 2 roues
+        
+        #Création graphique
         graph2.plot(kind="bar" ,y="taux")
         plt.title("Taux d'accidents du a la cause " + NomCat  )
         
@@ -140,8 +148,15 @@ elif choix=="3":
     elif typeLum=="3":
         typeLum="Nuit sans eclairage"
             
-    #Requete et graph
+   #Requete 
     graph3=p.read_sql("SELECT HOUR(MDate.DateFormatStandard) as Heure, (MLuminosite.libelle) as Luminosite, COUNT(MLuminosite.libelle_luminosite) as Nombre FROM MAccident INNER JOIN MDate on MAccident.date_id = MDate.date_id INNER JOIN MLuminosite on MAccident.lum_id = MLuminosite.code WHERE impliq_id = 2 AND MLuminosite.libelle = \"" + typeLum + "\" AND HOUR(MDate.DateFormatStandard) NOT BETWEEN 9 AND 15 GROUP BY Heure", conn)
+    #Selection des colonnes heure a partir de MDate, de la luminosité à partir de MAccident et comptage du nombre d'accident
+    #Jointure de MDate pour récupérer l'heure de l'accident
+    #Jointure de MLuminosité pour ne sélectionner que la luminosité paramétré
+    #Sélection des tuples étant des 2 roues, avec la luminosité paramétré, durant la nuit
+    
+    
+    #création du graphique
     graph3.plot(kind="bar", x="Heure", y="Nombre")
     plt.title("Nombre d'accidents de deux roues lors d'une " + typeLum )
     plt.show()   

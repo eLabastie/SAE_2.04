@@ -154,7 +154,7 @@ elif choix=='4':
     # Saisie vérif des paramètres de la requête
     while(True) :
         dateDeb=saisieVerif(1984, 1997, "Choisissez la date de départ de la période à consulter (Entre 1984 et 1997) : ")
-        dateFin=saisieVerif(1984, 1997, "Choisissez la date de fin de la période à consulter (Entre 1984 et 1997) : ")
+        dateFin=saisieVerif(1984, 1997, "Choisissez la date de fin de la période à consulter (Entre 1984 et 1997, Ecart supérieur à 4) : ")
         if (int(dateFin)-int(dateDeb) >= 4):
             break
     

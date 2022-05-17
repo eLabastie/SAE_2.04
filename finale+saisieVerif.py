@@ -105,32 +105,18 @@ elif choix=='2':
         NomCat='Autre'
         TypeCause='("indéterminée", "Causes humaines" ,"eclairage insuffisant du véhicule", "Incident mécanique", "ivresse", "malaise", "infirme", "Eblouissement par les phares", "Demi-tour", "Manoeuvre sur parking", "Heurte un véhicule en stationnement", "Quitte le stationnement", "Mauvais positionnement (chgt de file)", "Marche arrière pour stationner", "Stationnement")'
     
-    typegraph=saisieVerif(1,2, " \n Voulez vous le taux d'accidents seulement des deux roues selon la cause " + NomCat + " (1) \n   ou le nombre d'accidents de deux roues comparé aux véhicules dus à la cause " + NomCat + "(2) : ")
     
-    #Graph 1
-    if typegraph=='1':
-        #Requete
-        graph2=p.read_sql("SELECT (count(*) * 100.0 / 4611 ) as taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code WHERE i.type_code_implique=2 AND c.libelle IN " + TypeCause + "", conn)
-        #Selection des tuples rapporté en pourcentage en tant que taux
-        #Jointure de MCause pour parametrer le type de cause que nous cherchons
-        #Jointure de MImplique pour ne selectionner que les véhicules etant des 2 roues
+    graph2=p.read_sql("SELECT m.libelleType as Nom,count(*) as Taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code INNER JOIN MTypeImplication as m on i.type_code_implique=m.id WHERE (i.type_code_implique=2 OR i.type_code_implique=3) AND c.libelle IN " + TypeCause + " GROUP BY m.libelleType ", conn)
+    #Sélection des libellés des accidents avec pour alias Nom, et comptage des tuples avec pour alias Taux
+    #Jointure de la table MCause afin de récupérer la cause des accidents
+    #Jointure de la table MImplique afin de récupérer les véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
+    #Jointure de la table MTypeImplication afin de récupérer les types de véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
+    #Recherche des tuples contenant les causes passées en paramètres
         
-        #Création graphique
-        graph2.plot(kind="bar" ,y="taux")
-        plt.title("Taux d'accidents du a la cause " + NomCat  )
-        
-    if typegraph=='2':
-        graph2=p.read_sql("SELECT m.libelleType as Nom,count(*) as Taux FROM MAccident as a INNER JOIN MCause as c on a.cause_id=c.Cause INNER JOIN MImplique as i on a.impliq_id=i.code INNER JOIN MTypeImplication as m on i.type_code_implique=m.id WHERE (i.type_code_implique=2 OR i.type_code_implique=3) AND c.libelle IN " + TypeCause + " GROUP BY m.libelleType ", conn)
-        #Sélection des libellés des accidents avec pour alias Nom, et comptage des tuples avec pour alias Taux
-        #Jointure de la table MCause afin de récupérer la cause des accidents
-        #Jointure de la table MImplique afin de récupérer les véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
-        #Jointure de la table MTypeImplication afin de récupérer les types de véhicules impliqués dans les accidents pour séléctionner uniquement les accidents impliquants des 2 roues
-        #Recherche des tuples contenant les causes passées en paramètres
-        
-        graph2.loc[0, 'Taux']=graph2.loc[0, 'Taux'] *100/4611 #Calcul du taux d'accidents des 2 roues
-        graph2.loc[1, 'Taux']=graph2.loc[1, 'Taux']*100/20343 #Calcul du taux d'accidents des véhicules
-        graph2.plot(kind="bar", x="Nom" ,y="Taux") #Création du greaphique
-        plt.title("Taux d'accidents de 2 roues du a la cause " + NomCat + " comparés à ceux des véhicules"  )
+    graph2.loc[0, 'Taux']=graph2.loc[0, 'Taux'] *100/4611 #Calcul du taux d'accidents des 2 roues
+    graph2.loc[1, 'Taux']=graph2.loc[1, 'Taux']*100/20343 #Calcul du taux d'accidents des véhicules
+    graph2.plot(kind="bar", x="Nom" ,y="Taux") #Création du greaphique
+    plt.title("Taux d'accidents de 2 roues du a la cause " + NomCat + " comparés à ceux des véhicules"  )
     plt.show()   
     
 elif choix=="3":
